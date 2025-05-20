@@ -1,29 +1,36 @@
 // index.js
 require('dotenv').config();
-var express = require('express');
-var cors = require('cors');
-var app = express();
+const express = require('express');
+const cors = require('cors');
+const app = express();
 
 app.use(cors({ optionsSuccessStatus: 200 }));
 app.use(express.static('public'));
 
+// Halaman utama
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+// Endpoint percobaan
 app.get('/api/hello', function (req, res) {
   res.json({ greeting: 'hello API' });
 });
 
-// Tambahkan ini untuk menyelesaikan Request Header Parser
+// Endpoint utama: Header Parser
 app.get('/api/whoami', function (req, res) {
+  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+  const language = req.headers['accept-language'];
+  const software = req.headers['user-agent'];
+
   res.json({
-    ipaddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-    language: req.headers['accept-language'],
-    software: req.headers['user-agent']
+    ipaddress: ip,
+    language: language,
+    software: software
   });
 });
 
-var listener = app.listen(process.env.PORT || 3001, function () {
+// Listener
+const listener = app.listen(process.env.PORT || 3001, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
